@@ -3287,6 +3287,13 @@ export default class Client4 {
         );
     };
 
+    sendTestNotificaiton = () => {
+        return this.doFetch<StatusOK>(
+            `${this.getBaseRoute()}/notifications/test`,
+            {method: 'post'},
+        );
+    };
+
     testEmail = (config?: AdminConfig) => {
         return this.doFetch<StatusOK>(
             `${this.getBaseRoute()}/email/test`,
