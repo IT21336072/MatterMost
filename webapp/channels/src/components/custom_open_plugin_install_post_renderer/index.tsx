@@ -9,6 +9,7 @@ import {Link} from 'react-router-dom';
 
 import type {MarketplacePlugin} from '@mattermost/types/marketplace';
 import type {Post} from '@mattermost/types/posts';
+import {isArrayOf, isRecordOf} from '@mattermost/types/utilities';
 
 import {getMissingProfilesByIds} from 'mattermost-redux/actions/users';
 import {getUsers} from 'mattermost-redux/selectors/entities/users';
@@ -34,11 +35,67 @@ type PluginRequest = {
     plugin_id: string;
 }
 
+function isPluginRequest(v: unknown): v is PluginRequest {
+    if (typeof v !== 'object' || v === null) {
+        return false;
+    }
+
+    const request = v as PluginRequest;
+
+    if (typeof request.user_id !== 'string') {
+        return false;
+    }
+
+    if (typeof request.required_feature !== 'string') {
+        return false;
+    }
+
+    if (typeof request.required_plan !== 'string') {
+        return false;
+    }
+
+    if (typeof request.create_at !== 'string') {
+        return false;
+    }
+
+    if (typeof request.sent_at !== 'string') {
+        return false;
+    }
+
+    if (typeof request.plugin_name !== 'string') {
+        return false;
+    }
+
+    if (typeof request.plugin_id !== 'string') {
+        return false;
+    }
+
+    return true;
+}
+
 type RequestedPlugins = Record<string, PluginRequest[]>
 
 type CustomPostProps = {
     requested_plugins_by_plugin_ids: RequestedPlugins;
     requested_plugins_by_user_ids: RequestedPlugins;
+}
+
+function isCustomPostProps(v: unknown): v is CustomPostProps {
+    if (typeof v !== 'object' || !v) {
+        return false;
+    }
+
+    const props = v as CustomPostProps;
+
+    if (!isRecordOf(props.requested_plugins_by_plugin_ids, (e) => isArrayOf(e, isPluginRequest))) {
+        return false;
+    }
+
+    if (!isRecordOf(props.requested_plugins_by_user_ids, (e) => isArrayOf(e, isPluginRequest))) {
+        return false;
+    }
+
+    return true;
 }
 
 const usersListStyle = {
@@ -130,7 +187,7 @@ export default function OpenPluginInstallPost(props: {post: Post}) {
     const {formatMessage, formatList} = useIntl();
     const [pluginsByPluginIds, setPluginsByPluginIds] = useState<RequestedPlugins>({});
 
-    const postProps = props.post.props as CustomPostProps;
+    const postProps = isCustomPostProps(props.post.props) ? props.post.props : undefined;
     const requestedPluginsByPluginIds = postProps?.requested_plugins_by_plugin_ids;
     const requestedPluginsByUserIds = postProps?.requested_plugins_by_user_ids;
 
