@@ -19,7 +19,7 @@
     "clean": "npm run clean --workspaces --if-present"
   },
   "dependencies": {
-    "react-intl": "6.6.2"
+    "react-intl": "6.8.0"
   },
   "devDependencies": {
     "@babel/core": "7.21.8",
